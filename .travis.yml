@@ -1,0 +1,29 @@
+
+services:
+  - docker
+
+install:
+  # latest docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+
+  # kubectl and gke kube config
+  - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+  - chmod +x ./kubectl
+  - sudo mv ./kubectl /usr/local/bin/kubectl
+  - mkdir ${HOME}/.kube
+  - cp ./kube-config.yaml ${HOME}/.kube/config
+  - sed -i -e 's/GKE_CERT/'"${GKE_CERT}"'/g' ${HOME}/.kube/config
+  - sed -i -e 's/GKE_SERVER/'"${GKE_SERVER}"'/g' ${HOME}/.kube/config
+  - sed -i -e 's/GKE_PROJECT/'"${GKE_PROJECT}"'/g' ${HOME}/.kube/config
+  - sed -i -e 's/GKE_USER_TOKEN/'"${GKE_USER_TOKEN}"'/g' ${HOME}/.kube/config
+
+script:
+  - docker build . -t ${DOCKER_USERNAME}/${DOCKER_IMAGE}
+  - docker tag ${DOCKER_USERNAME}/${DOCKER_IMAGE}:latest ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${TRAVIS_BUILD_ID}
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker login
+  - docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:latest
+  - docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${TRAVIS_BUILD_ID}
+  - kubectl set image deployment/${K8S_DEPLOYMENT_NAME} ${K8S_DEPLOYMENT_NAME}=${DOCKER_USERNAME}/${DOCKER_IMAGE}:${TRAVIS_BUILD_ID}
