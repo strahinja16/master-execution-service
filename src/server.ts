@@ -1,13 +1,14 @@
 import "reflect-metadata";
 import express from 'express';
 import { createServer } from 'http';
-import startGrpcServer from "./grpc";
+import startGrpcServer from "./grpc-services";
 import cors from 'cors';
 import { getDbConnection  } from "./db";
 
 const app = express();
 
 app.use('*', cors());
+app.get('/health', (req, res) => res.send('Healthy'));
 
 getDbConnection();
 startGrpcServer();

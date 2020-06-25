@@ -13,7 +13,7 @@ export const getDbConnection = async (): Promise<Connection> => {
     return createConnection({
         type: "postgres",
         host: config.db.host,
-        port:  config.db.port as number,
+        port:  parseInt(config.db.port),
         username: config.db.user,
         password: config.db.pass,
         database: config.db.database,

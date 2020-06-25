@@ -20,7 +20,7 @@ install:
   - sed -i -e 's/GKE_USER_TOKEN/'"${GKE_USER_TOKEN}"'/g' ${HOME}/.kube/config
 
 script:
-  - docker build . -t ${DOCKER_USERNAME}/${DOCKER_IMAGE}
+  - docker build --build-arg PROD_ENV=${PROD_ENV} -t ${DOCKER_USERNAME}/${DOCKER_IMAGE} .
   - docker tag ${DOCKER_USERNAME}/${DOCKER_IMAGE}:latest ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${TRAVIS_BUILD_ID}
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker login
