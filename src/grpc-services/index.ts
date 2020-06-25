@@ -3,6 +3,7 @@ import * as grpc from 'grpc';
 
 import { protoInit } from '../proto';
 import ExecutionService from './servers/execution';
+import HealthService from './servers/health';
 import {config} from "../config";
 
 protoInit();
@@ -16,6 +17,7 @@ export const startGrpcServer: StartGrpcServerType = (): void => {
 
     // register all the handler here...
     server.addService(ExecutionService.service, ExecutionService.implementation);
+    server.addService(HealthService.service, HealthService.implementation);
 
     // define the host/port for server
     server.bindAsync(
