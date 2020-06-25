@@ -10,7 +10,6 @@ COPY src src
 RUN npm run build
 
 ## production
-ARG PROD_ENV
 FROM node:10.16-alpine
 ENV NODE_ENV=production
 RUN apk add --no-cache python
@@ -26,5 +25,6 @@ COPY package-lock.json ./
 RUN npm install
 COPY --from=builder /usr/src/app/dist/ dist/
 EXPOSE 3000
+EXPOSE 50051
 
 CMD [ "npm", "run", "start:prod" ]
